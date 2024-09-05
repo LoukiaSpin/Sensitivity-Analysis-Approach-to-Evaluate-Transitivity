@@ -29,7 +29,7 @@ data_set <-
   get.dataset(pmid = 19821440, show.index = FALSE, show.type = FALSE)$Dataset
 
 # The NMA outcome data 
-load("./31_Datasets/2009_19821440_Singh.RData")
+load("./data/19821440_Singh 2009_Outcome data.RData")
 
 
 ## Prepare outcome dataset

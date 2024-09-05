@@ -93,6 +93,7 @@ dev.off()
 
 ## Run the 'standard' NMA (random-effects model)
 # ?run_model
+set.seed(05092024)
 primary <- 
   run_model(data = data_nma_fin,
             measure = "OR",
@@ -105,6 +106,8 @@ primary <-
             n_burnin = 200000,
             n_thin = 5,
             adjust_wgt = NULL)
+#save(primary, file = "./data/Results standard NMA.RData")
+#load("./data/Results standard NMA.RData")
 
 # MCMC diagnostics (?mcmc_diagnostics)
 mcmc_diagnostics(net = primary,
@@ -112,6 +115,7 @@ mcmc_diagnostics(net = primary,
 
 
 ## Run the enriching-through-weighting model with *fixed weights* (rms, root mean square)
+set.seed(05092024)
 rms_adjust <- 
   run_model(data = data_nma_fin,
             measure = "OR",
@@ -124,6 +128,7 @@ rms_adjust <-
             n_burnin = 200000,
             n_thin = 5,
             adjust_wgt = rms_wgt$weights) 
+#save(rms_adjust, file = "./data/Results fixed weights.RData")
 
 # MCMC diagnostics 
 mcmc_diagnostics(net = rms_adjust,
@@ -131,6 +136,7 @@ mcmc_diagnostics(net = rms_adjust,
 
 
 ## Run the enriching-through-weighting model with 'uniform prior distribution'
+set.seed(05092024)
 unif_adjust <- 
   run_model(data = data_nma_fin,
             measure = "OR",
@@ -143,6 +149,7 @@ unif_adjust <-
             n_burnin = 200000,
             n_thin = 5,
             adjust_wgt = uniform_wgt$weights)
+save(unif_adjust, file = "./data/Results uniform prior.RData")
 
 # MCMC diagnostics 
 mcmc_diagnostics(net = unif_adjust,
