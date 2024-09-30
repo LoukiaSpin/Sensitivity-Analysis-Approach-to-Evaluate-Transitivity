@@ -69,11 +69,14 @@ study_diss <-
 
 
 ## Define the similarity weights (?weight_defined)
-# Root mean square
-rms_wgt <- weight_defined(diss_res = list(study_diss, "rms"))
+# Fixed weights
+fixed_wgt <- weight_defined(diss_res = list(study_diss, "fixed"))
 
 # Uniform distribution
 uniform_wgt <- weight_defined(diss_res = list(study_diss, "uniform"))
+
+# Relative index
+index_wgt <- weight_defined(diss_res = list(study_diss, "index"))
 
 
 ## Create the rainbow plot 
@@ -104,8 +107,7 @@ primary <-
             n_chains = 3,
             n_iter = 300000,
             n_burnin = 200000,
-            n_thin = 5,
-            adjust_wgt = NULL)
+            n_thin = 5)
 #save(primary, file = "./data/Results standard NMA.RData")
 #load("./data/Results standard NMA.RData")
 
@@ -114,9 +116,9 @@ mcmc_diagnostics(net = primary,
                  par = c("EM", "tau"))
 
 
-## Run the enriching-through-weighting model with *fixed weights* (rms, root mean square)
+## Run the enriching-through-weighting model with *between-comparison similarities* 
 set.seed(05092024)
-rms_adjust <- 
+fixed_adjust <- 
   run_model(data = data_nma_fin,
             measure = "OR",
             model = "RE",
@@ -127,11 +129,12 @@ rms_adjust <-
             n_iter = 300000,
             n_burnin = 200000,
             n_thin = 5,
-            adjust_wgt = rms_wgt$weights) 
-#save(rms_adjust, file = "./data/Results fixed weights.RData")
+            adjust_wgt = fixed_wgt$weights) 
+#save(fixed_adjust, file = "./data/Results fixed weights.RData")
+#load("./data/Results fixed weights.RData")
 
 # MCMC diagnostics 
-mcmc_diagnostics(net = rms_adjust,
+mcmc_diagnostics(net = fixed_adjust,
                  par = c("EM", "tau"))
 
 
@@ -149,10 +152,33 @@ unif_adjust <-
             n_burnin = 200000,
             n_thin = 5,
             adjust_wgt = uniform_wgt$weights)
-save(unif_adjust, file = "./data/Results uniform prior.RData")
+#save(unif_adjust, file = "./data/Results uniform prior.RData")
+#load("./data/Results uniform prior.RData")
 
 # MCMC diagnostics 
 mcmc_diagnostics(net = unif_adjust,
+                 par = c("EM", "tau"))
+
+
+## Run the enriching-through-weighting model with 'relative similarity index'
+set.seed(05092024)
+rel_index <- 
+  run_model(data = data_nma_fin,
+            measure = "OR",
+            model = "RE",
+            heter_prior = list("halfnormal", 0, 1),
+            D = 1,
+            ref = 1,
+            n_chains = 3,
+            n_iter = 300000,
+            n_burnin = 200000,
+            n_thin = 5,
+            adjust_wgt = index_wgt$weights)
+#save(rel_index, file = "./data/Results relative index.RData")
+#load("./data/Results relative index.RData")
+
+# MCMC diagnostics 
+mcmc_diagnostics(net = rel_index,
                  par = c("EM", "tau"))
 
 
@@ -164,9 +190,9 @@ tiff("./Figures/Figure 2.tiff",
      units = "cm", 
      compression = "lzw", 
      res = 600)
-forestplot_juxtapose(results = list(primary, rms_adjust, unif_adjust), 
+forestplot_juxtapose(results = list(primary, fixed_adjust, unif_adjust, rel_index), 
                      compar = "PBO", 
-                     name = c("Standard NMA", "Fixed weights", "Uniform prior distribution"), 
+                     name = c("Standard NMA", "Between-comparison similarity", "Uniform prior distribution", "Relative similarity index"), 
                      drug_names = treat_names,
                      axis_title_size = 16,
                      axis_text_size = 16,
@@ -181,9 +207,9 @@ tiff("./Figures/Figure 3.tiff",
      units = "cm", 
      compression = "lzw", 
      res = 600)
-forestplot_juxtapose(results = list(primary, rms_adjust, unif_adjust), 
+forestplot_juxtapose(results = list(primary, fixed_adjust, unif_adjust, rel_index), 
                      compar = "PBO", 
-                     name = c("Standard NMA", "Fixed weights", "Uniform prior distribution"), 
+                     name = c("Standard NMA", "Between-comparison similarity", "Uniform prior distribution", "Relative similarity index"), 
                      drug_names = treat_names,
                      axis_title_size = 16,
                      axis_text_size = 16,

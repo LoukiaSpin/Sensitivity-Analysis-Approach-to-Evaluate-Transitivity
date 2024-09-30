@@ -110,7 +110,8 @@ covar_contribution_plot(contr_res = contrib_res,
                         axis_text_size = 16,
                         strip_text_size = 16,
                         subtitle_size = 16,
-                        label_size = 5)
+                        label_size = 5,
+                        seq_by = 0.026)
 dev.off()
 
 # Functional parameters
