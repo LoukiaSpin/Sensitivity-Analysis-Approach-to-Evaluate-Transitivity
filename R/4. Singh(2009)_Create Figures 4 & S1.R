@@ -68,9 +68,12 @@ study_diss <-
                   get_plots = TRUE)
 
 
-## Get the fixed weights
-# ?weight_defined
-rms_wgt <- weight_defined(diss_res = list(study_diss, "rms"))
+## Get the weights under approaches (a) and (b) (?weight_defined)
+# Between-comparison similarity
+rms_wgt <- weight_defined(diss_res = list(study_diss, "fixed"))
+
+# Relative similarity index
+relative_wgt <- weight_defined(diss_res = list(study_diss, "index"))
 
 
 ## Get contrast-based results for each study
@@ -81,21 +84,21 @@ contrast_res <- pairwise(list(t.1, t.2),
                          sm = "OR")
 
 
-## Get study contributions to network meta-regression results
+## Get study contributions using the 'Between-comparison similarities'
 # ?study_perc_contrib
-contrib_res <- 
-  study_perc_contrib(study.name = contrast_res$studlab,
-                     base.t = contrast_res$treat1, 
-                     exp.t = contrast_res$treat2, 
-                     ref.t = 1,
-                     obs.se = contrast_res$seTE,
+contrib_rms <- 
+  study_perc_contrib(study_name = contrast_res$studlab,
+                     base_t = contrast_res$treat1, 
+                     exp_t = contrast_res$treat2, 
+                     ref_t = 1,
+                     obs_se = contrast_res$seTE,
                      covar = rms_wgt$weights,
-                     covar.assum = "no",
+                     covar_assum = "no",
                      model = "RE",
                      tau = 0.58) 
 
 
-## Covariate-contribution plot (?covar_contribution_plot)
+## Covariate-contribution plot with 'Between-comparison similarities' (?covar_contribution_plot)
 # Basic parameters
 tiff("./Figures/Figure 4.tiff", 
      height = 30, 
@@ -103,15 +106,16 @@ tiff("./Figures/Figure 4.tiff",
      units = "cm", 
      compression = "lzw", 
      res = 600)
-covar_contribution_plot(contr_res = contrib_res, 
+covar_contribution_plot(contr_res = contrib_rms, 
                         comparisons = "basic",
                         drug_names = treat_names,
+                        name_x_axis = "Between-comparison similarity",
                         axis_title_size = 16,
                         axis_text_size = 16,
                         strip_text_size = 16,
                         subtitle_size = 16,
                         label_size = 5,
-                        seq_by = 0.026)
+                        seq_by = 0.05)
 dev.off()
 
 # Functional parameters
@@ -121,26 +125,82 @@ tiff("./Figures/Figure S1.tiff",
      units = "cm", 
      compression = "lzw", 
      res = 600)
-covar_contribution_plot(contr_res = contrib_res, 
+covar_contribution_plot(contr_res = contrib_rms, 
                         comparisons = "functional",
                         drug_names = treat_names,
-                        upper.limit = 60,
+                        upper_limit = 60,
+                        name_x_axis = "Between-comparison similarity",
                         axis_title_size = 16,
                         axis_text_size = 16,
                         strip_text_size = 16,
                         subtitle_size = 16,
                         label_size = 5,
-                        seq_by = 0.11)
+                        seq_by = 0.10)
 dev.off()
 
 
 ## Summary of contributions - Basic parameters
 # Restrict to studies with similarities above 60%
-contrib_res$perc_contribute[c(1, 2, 6), 4] <- 0
+contrib_rms$perc_contribute[c(1, 2, 6), 4] <- 0
 
 # Summary of non-zero contributions
-summary(contrib_res$perc_contribute[, 4:9][contrib_res$perc_contribute[, 4:9] > 0])
+summary(contrib_rms$perc_contribute[, 4:9][contrib_rms$perc_contribute[, 4:9] > 0])
 
 
 ## Summary of contributions - Functional parameters
-summary(contrib_res$perc_contribute[, -c(1:9, 25)][contrib_res$perc_contribute[, -c(1:9, 25)] > 0])
+summary(contrib_rms$perc_contribute[, -c(1:9, 25)][contrib_rms$perc_contribute[, -c(1:9, 25)] > 0])
+
+
+## Get study contributions using the 'Relative similarity index'
+# ?study_perc_contrib
+contrib_relative <- 
+  study_perc_contrib(study_name = contrast_res$studlab,
+                     base_t = contrast_res$treat1, 
+                     exp_t = contrast_res$treat2, 
+                     ref_t = 1,
+                     obs_se = contrast_res$seTE,
+                     covar = relative_wgt$weights,
+                     covar_assum = "no",
+                     model = "RE",
+                     tau = 0.58) 
+
+
+## Covariate-contribution plot with 'Relative similarity index' (?covar_contribution_plot)
+# Basic parameters
+tiff("./Figures/Figure S2.tiff", 
+     height = 30, 
+     width = 55, 
+     units = "cm", 
+     compression = "lzw", 
+     res = 600)
+covar_contribution_plot(contr_res = contrib_relative, 
+                        comparisons = "basic",
+                        drug_names = treat_names,
+                        name_x_axis = "Relative similarity index",
+                        axis_title_size = 16,
+                        axis_text_size = 16,
+                        strip_text_size = 16,
+                        subtitle_size = 16,
+                        label_size = 5,
+                        seq_by = 0.035)
+dev.off()
+
+# Functional parameters
+tiff("./Figures/Figure S3.tiff", 
+     height = 30, 
+     width = 55, 
+     units = "cm", 
+     compression = "lzw", 
+     res = 600)
+covar_contribution_plot(contr_res = contrib_relative, 
+                        comparisons = "functional",
+                        drug_names = treat_names,
+                        upper_limit = 60,
+                        name_x_axis = "Relative similarity index",
+                        axis_title_size = 16,
+                        axis_text_size = 16,
+                        strip_text_size = 16,
+                        subtitle_size = 16,
+                        label_size = 5,
+                        seq_by = 0.035)
+dev.off()
