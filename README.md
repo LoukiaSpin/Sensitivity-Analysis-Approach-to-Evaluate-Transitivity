@@ -8,6 +8,11 @@ The repository offers the typical structure of separate folders for R (scripts t
 
 After downloading/cloning the repo, the user can use the .Rproj file to source all code.
 
+The user should install the development version of the [rnmamod](https://CRAN.R-project.org/package=rnmamod) R package that contains the new functions to apply the proposed sensitivity analysis framework:
+
+    install.packages("devtools")
+    devtools::install_github("LoukiaSpin/rnmamod")
+
 ## Output 
 
 Prerequisite R packages: 
