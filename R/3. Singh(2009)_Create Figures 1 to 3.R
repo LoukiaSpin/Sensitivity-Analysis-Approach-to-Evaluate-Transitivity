@@ -86,7 +86,7 @@ tiff("./Figures/Figure 1.tiff",
      width = 50, 
      units = "cm", 
      compression = "lzw", 
-     res = 600)
+     res = 300)
 rainbow_similarities(results = study_diss,
                      axis_title_size = 14,
                      axis_text_size = 14,
@@ -109,7 +109,6 @@ primary <-
             n_burnin = 200000,
             n_thin = 5)
 #save(primary, file = "./data/Results standard NMA.RData")
-#load("./data/Results standard NMA.RData")
 
 # MCMC diagnostics (?mcmc_diagnostics)
 mcmc_diagnostics(net = primary,
@@ -131,7 +130,6 @@ fixed_adjust <-
             n_thin = 5,
             adjust_wgt = fixed_wgt$weights) 
 #save(fixed_adjust, file = "./data/Results fixed weights.RData")
-#load("./data/Results fixed weights.RData")
 
 # MCMC diagnostics 
 mcmc_diagnostics(net = fixed_adjust,
@@ -153,7 +151,6 @@ unif_adjust <-
             n_thin = 5,
             adjust_wgt = uniform_wgt$weights)
 #save(unif_adjust, file = "./data/Results uniform prior.RData")
-#load("./data/Results uniform prior.RData")
 
 # MCMC diagnostics 
 mcmc_diagnostics(net = unif_adjust,
@@ -175,7 +172,6 @@ rel_index <-
             n_thin = 5,
             adjust_wgt = index_wgt$weights)
 #save(rel_index, file = "./data/Results relative index.RData")
-#load("./data/Results relative index.RData")
 
 # MCMC diagnostics 
 mcmc_diagnostics(net = rel_index,
@@ -189,7 +185,7 @@ tiff("./Figures/Figure 2.tiff",
      width = 55, 
      units = "cm", 
      compression = "lzw", 
-     res = 600)
+     res = 300)
 forestplot_juxtapose(results = list(primary, fixed_adjust, unif_adjust, rel_index), 
                      compar = "PBO", 
                      name = c("Standard NMA", "Between-comparison similarity", "Uniform prior distribution", "Relative similarity index"), 
@@ -206,7 +202,7 @@ tiff("./Figures/Figure 3.tiff",
      width = 50, 
      units = "cm", 
      compression = "lzw", 
-     res = 600)
+     res = 300)
 forestplot_juxtapose(results = list(primary, fixed_adjust, unif_adjust, rel_index), 
                      compar = "PBO", 
                      name = c("Standard NMA", "Between-comparison similarity", "Uniform prior distribution", "Relative similarity index"), 

@@ -105,7 +105,7 @@ tiff("./Figures/Figure 4.tiff",
      width = 55, 
      units = "cm", 
      compression = "lzw", 
-     res = 600)
+     res = 300)
 covar_contribution_plot(contr_res = contrib_rms, 
                         comparisons = "basic",
                         drug_names = treat_names,
@@ -124,7 +124,7 @@ tiff("./Figures/Figure S1.tiff",
      width = 55, 
      units = "cm", 
      compression = "lzw", 
-     res = 600)
+     res = 300)
 covar_contribution_plot(contr_res = contrib_rms, 
                         comparisons = "functional",
                         drug_names = treat_names,
@@ -172,7 +172,7 @@ tiff("./Figures/Figure S2.tiff",
      width = 55, 
      units = "cm", 
      compression = "lzw", 
-     res = 600)
+     res = 300)
 covar_contribution_plot(contr_res = contrib_relative, 
                         comparisons = "basic",
                         drug_names = treat_names,
@@ -191,7 +191,7 @@ tiff("./Figures/Figure S3.tiff",
      width = 55, 
      units = "cm", 
      compression = "lzw", 
-     res = 600)
+     res = 300)
 covar_contribution_plot(contr_res = contrib_relative, 
                         comparisons = "functional",
                         drug_names = treat_names,
