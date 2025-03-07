@@ -1,11 +1,11 @@
 #*******************************************************************************
 #*
 #*
-#*                 Creating Figure 4 & Supplementary Figure S1                                                                                                                                                                                                                           
+#*                           Creating Figures 2 and 3                                                                                                                                                                                                                                                                                                        
 #*         <Study percentage contributions against study similarities>                                                                                                                                                                                                  
 #* 
 #* Author: Loukia M. Spineli
-#* Date: September 2024
+#* Date: December 2024
 #*       
 #*******************************************************************************
 
@@ -15,7 +15,7 @@
 
 
 ## Load libraries
-list.of.packages <- c("rnmamod", "tracenma", "netmeta")
+list.of.packages <- c("rnmamod", "tracenma", "meta")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
 
@@ -64,24 +64,37 @@ dataset_new[, -c(1:3)] <-
 # ?comp_clustering
 study_diss <- 
   comp_clustering(input = dataset_new, 
-                  threshold = 0.13,
+                  threshold = 0.13, 
                   get_plots = TRUE)
 
 
-## Get the weights under approaches (a) and (b) (?weight_defined)
-# Between-comparison similarity
-rms_wgt <- weight_defined(diss_res = list(study_diss, "fixed"))
-
-# Relative similarity index
-relative_wgt <- weight_defined(diss_res = list(study_diss, "index"))
+## Get the between-comparisons dissimilarities
+# ?plot_study_dissimilarities
+between_diss <- plot_study_dissimilarities(results = study_diss)$between
 
 
 ## Get contrast-based results for each study
-contrast_res <- pairwise(list(t.1, t.2),
-                         list(r.1, r.2), 
-                         list(n.1, n.2),
+contrast_res <- pairwise(studlab = id,
+                         treat = list(t.1, t.2),
+                         event = list(r.1, r.2), 
+                         n = list(n.1, n.2),
                          data = data_nma_fin,
                          sm = "OR")
+
+
+## Run RE-NMA with consistency
+# ?run_model
+primary <- 
+  run_model(data = data_nma_fin,
+            measure = "OR",
+            model = "RE",
+            heter_prior = list("halfnormal", 0, 1),
+            D = 1, # positive outcome
+            ref = 1,
+            n_chains = 3,
+            n_iter = 300000,
+            n_burnin = 200000,
+            n_thin = 5)
 
 
 ## Get study contributions using the 'Between-comparison similarities'
@@ -92,15 +105,15 @@ contrib_rms <-
                      exp_t = contrast_res$treat2, 
                      ref_t = 1,
                      obs_se = contrast_res$seTE,
-                     covar = rms_wgt$weights,
+                     covar = between_diss$value,
                      covar_assum = "no",
                      model = "RE",
-                     tau = 0.58) 
+                     tau = primary$tau[5])
 
 
 ## Covariate-contribution plot with 'Between-comparison similarities' (?covar_contribution_plot)
 # Basic parameters
-tiff("./Figures/Figure 4.tiff", 
+tiff("./Figures/Figure 2.tiff", 
      height = 30, 
      width = 55, 
      units = "cm", 
@@ -109,17 +122,17 @@ tiff("./Figures/Figure 4.tiff",
 covar_contribution_plot(contr_res = contrib_rms, 
                         comparisons = "basic",
                         drug_names = treat_names,
-                        name_x_axis = "Between-comparison similarity",
+                        name_x_axis = "Between-comparisons dissimilarity",
                         axis_title_size = 16,
                         axis_text_size = 16,
                         strip_text_size = 16,
                         subtitle_size = 16,
                         label_size = 5,
-                        seq_by = 0.05)
+                        percentage = TRUE)
 dev.off()
 
 # Functional parameters
-tiff("./Figures/Figure S1.tiff", 
+tiff("./Figures/Figure 3.tiff", 
      height = 30, 
      width = 55, 
      units = "cm", 
@@ -129,78 +142,11 @@ covar_contribution_plot(contr_res = contrib_rms,
                         comparisons = "functional",
                         drug_names = treat_names,
                         upper_limit = 60,
-                        name_x_axis = "Between-comparison similarity",
+                        name_x_axis = "Between-comparisons dissimilarity",
                         axis_title_size = 16,
                         axis_text_size = 16,
                         strip_text_size = 16,
                         subtitle_size = 16,
                         label_size = 5,
-                        seq_by = 0.10)
-dev.off()
-
-
-## Summary of contributions - Basic parameters
-# Restrict to studies with similarities above 60%
-contrib_rms$perc_contribute[c(1, 2, 6), 4] <- 0
-
-# Summary of non-zero contributions
-summary(contrib_rms$perc_contribute[, 4:9][contrib_rms$perc_contribute[, 4:9] > 0])
-
-
-## Summary of contributions - Functional parameters
-summary(contrib_rms$perc_contribute[, -c(1:9, 25)][contrib_rms$perc_contribute[, -c(1:9, 25)] > 0])
-
-
-## Get study contributions using the 'Relative similarity index'
-# ?study_perc_contrib
-contrib_relative <- 
-  study_perc_contrib(study_name = contrast_res$studlab,
-                     base_t = contrast_res$treat1, 
-                     exp_t = contrast_res$treat2, 
-                     ref_t = 1,
-                     obs_se = contrast_res$seTE,
-                     covar = relative_wgt$weights,
-                     covar_assum = "no",
-                     model = "RE",
-                     tau = 0.58) 
-
-
-## Covariate-contribution plot with 'Relative similarity index' (?covar_contribution_plot)
-# Basic parameters
-tiff("./Figures/Figure S2.tiff", 
-     height = 30, 
-     width = 55, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
-covar_contribution_plot(contr_res = contrib_relative, 
-                        comparisons = "basic",
-                        drug_names = treat_names,
-                        name_x_axis = "Relative similarity index",
-                        axis_title_size = 16,
-                        axis_text_size = 16,
-                        strip_text_size = 16,
-                        subtitle_size = 16,
-                        label_size = 5,
-                        seq_by = 0.035)
-dev.off()
-
-# Functional parameters
-tiff("./Figures/Figure S3.tiff", 
-     height = 30, 
-     width = 55, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
-covar_contribution_plot(contr_res = contrib_relative, 
-                        comparisons = "functional",
-                        drug_names = treat_names,
-                        upper_limit = 60,
-                        name_x_axis = "Relative similarity index",
-                        axis_title_size = 16,
-                        axis_text_size = 16,
-                        strip_text_size = 16,
-                        subtitle_size = 16,
-                        label_size = 5,
-                        seq_by = 0.035)
+                        percentage = TRUE)
 dev.off()

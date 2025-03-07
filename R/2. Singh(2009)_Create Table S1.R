@@ -5,7 +5,7 @@
 #*       <Network meta-regression with different interaction assumptions>    
 #*                                                                                                                                                                                  
 #* Author: Loukia M. Spineli
-#* Date: September 2024
+#* Date: December 2024
 #*       
 #*******************************************************************************
 
@@ -59,7 +59,7 @@ rownames(data_nma_fin) <- data_set$trial
 treat_names <- c("PBO", "ABA", "ADA", "ANA", "ETA", "INF", "RIT")
 
 
-## Run the primary model
+## Run RE-NMA with consistency
 # ?run_model
 primary <- 
   run_model(data = data_nma_fin,

@@ -5,7 +5,7 @@
 #*               <Characteristics summary and Statistical tests>                                                                                                                                                            
 #* 
 #* Author: Loukia M. Spineli
-#* Date: September 2024
+#* Date: December 2024
 #*       
 #*******************************************************************************
 
