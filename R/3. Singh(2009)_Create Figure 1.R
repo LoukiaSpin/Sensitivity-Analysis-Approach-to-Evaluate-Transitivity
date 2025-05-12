@@ -33,7 +33,7 @@ data_set$trial <- sub("\\s+[^ ]+$", "", data_set$trial)
 dataset_new0 <- as.data.frame(data_set)
 
 # STEP 2: Remove the columns with treatment names
-dataset_new <- dataset_new0[, -c(4,5)]
+dataset_new <- dataset_new0[, -c(4, 5)]
 
 # STEP 3: Turn the treatment ID columns from 'double' to 'character'
 dataset_new[, 2:3] <- lapply(dataset_new[, 2:3], as.character)
@@ -41,7 +41,7 @@ dataset_new[, 2:3] <- lapply(dataset_new[, 2:3], as.character)
 # STEP 4: Turn the ‘character’ characteristics into ‘integer’
 dataset_new[, -c(1:3)] <- 
   lapply(dataset_new[, -c(1:3)], 
-         function(x) if (typeof(x) == "character") as.factor(x))
+         function(x) if (typeof(x) == "character") as.factor(x) else x)
 
 
 ## Gower's dissimilarity for all study pairs

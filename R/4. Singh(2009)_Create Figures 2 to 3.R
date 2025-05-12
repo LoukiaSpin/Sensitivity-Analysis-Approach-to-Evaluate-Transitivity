@@ -15,7 +15,7 @@
 
 
 ## Load libraries
-list.of.packages <- c("rnmamod", "tracenma", "meta")
+list.of.packages <- c("rnmamod", "tracenma", "netmeta")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
 
@@ -27,6 +27,9 @@ source("./R/convert_long_to_wide_function.R")
 # From 'tracenma'
 data_set <- 
   get.dataset(pmid = 19821440, show.index = FALSE, show.type = FALSE)$Dataset
+
+# Make the study names 'prettier'
+data_set$trial <- sub("\\s+[^ ]+$", "", data_set$trial)
 
 # The NMA outcome data 
 load("./data/19821440_Singh 2009_Outcome data.RData")
@@ -49,7 +52,7 @@ treat_names <- c("PBO", "ABA", "ADA", "ANA", "ETA", "INF", "RIT")
 dataset_new0 <- as.data.frame(data_set)
 
 # STEP 2: Remove the columns with treatment names
-dataset_new <- dataset_new0[, -c(4,5)]
+dataset_new <- dataset_new0[, -c(4, 5)]
 
 # STEP 3: Turn the treatment ID columns from 'double' to 'character'
 dataset_new[, 2:3] <- lapply(dataset_new[, 2:3], as.character)
@@ -57,20 +60,21 @@ dataset_new[, 2:3] <- lapply(dataset_new[, 2:3], as.character)
 # STEP 4: Turn the ‘character’ characteristics into ‘integer’
 dataset_new[, -c(1:3)] <- 
   lapply(dataset_new[, -c(1:3)], 
-         function(x) if (typeof(x) == "character") as.factor(x))
+         function(x) if (typeof(x) == "character") as.factor(x) else x)
 
 
 ## Gower's dissimilarity for all study pairs
 # ?comp_clustering
 study_diss <- 
   comp_clustering(input = dataset_new, 
+                  drug_names = treat_names,
                   threshold = 0.13, 
                   get_plots = TRUE)
 
 
 ## Get the between-comparisons dissimilarities
 # ?plot_study_dissimilarities
-between_diss <- plot_study_dissimilarities(results = study_diss)$between
+between_diss <- plot_study_dissimilarities(results = study_diss)$diss_values[, "between_multiarm"] 
 
 
 ## Get contrast-based results for each study
@@ -105,7 +109,7 @@ contrib_rms <-
                      exp_t = contrast_res$treat2, 
                      ref_t = 1,
                      obs_se = contrast_res$seTE,
-                     covar = between_diss$value,
+                     covar = between_diss,
                      covar_assum = "no",
                      model = "RE",
                      tau = primary$tau[5])
